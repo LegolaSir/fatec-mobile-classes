@@ -38,6 +38,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         MoveByKeyboard(horizontalSpeed);
         MoveByMouse(horizontalSpeed);
+        MoveExclusiveByTouch(horizontalSpeed);
     }
 
     public void MoveForwards()
@@ -77,6 +78,23 @@ public class PlayerBehaviour : MonoBehaviour
 
     public void MoveExclusiveByTouch(float horizontalSpeed)
     {
-        this.transform.position += new Vector3(horizontalSpeed, 0, 0);
+        // Checking if there's at least a touch into the screen
+        if(Input.touchCount > 0)
+        {
+            // Storing first touch into the screen
+            Touch myTouch = Input.touches[0];
+
+            // Converting touch coordinates on the screen into viewport point, so as to simplify interaction on game world space
+            Vector3 worldPos = Camera.main.ScreenToViewportPoint(myTouch.position);
+
+            // Proper movement in X axis, related to 'worldPos'
+            int xMove = 0;
+
+            // Setting player direction towards X axis according to 'worldPos' value
+            _ = (worldPos.x < 0.5f) ? xMove = -1 : xMove = 1;
+
+            horizontalSpeed *= xMove;
+            this.transform.position += new Vector3(horizontalSpeed, 0, 0);
+        }
     }
 }
