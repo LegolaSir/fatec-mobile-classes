@@ -36,9 +36,12 @@ public class PlayerBehaviour : MonoBehaviour
 
         MoveForwards();
 
+        #if UNITY_STANDALONE || UNITY_WEBPLAYER
         MoveByKeyboard(horizontalSpeed);
         MoveByMouse(horizontalSpeed);
+        #elif UNITY_IOS || UNITY_ANDROID
         MoveExclusiveByTouch(horizontalSpeed);
+        #endif
     }
 
     public void MoveForwards()
