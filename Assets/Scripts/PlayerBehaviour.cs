@@ -32,26 +32,32 @@ public class PlayerBehaviour : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
+        float horizontalSpeed = dodgeSpeed * Time.fixedDeltaTime;
+
         MoveForwards();
-        //MoveByKeyboard();
-        MoveByMouse();
+
+        MoveByKeyboard(horizontalSpeed);
+        MoveByMouse(horizontalSpeed);
     }
 
-    public void MoveByKeyboard()
+    public void MoveForwards()
     {
-        var horizontalSpeed = Input.GetAxis("Horizontal") * dodgeSpeed * Time.fixedDeltaTime;
+        rb.AddForce(0, 0, rollSpeed);
+        if (rb.velocity.z >= rollSpeed) rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, rollSpeed);
+    }
 
+    public void MoveByKeyboard(float horizontalSpeed)
+    {
         // Check if we're moving to the side 
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
         {
+            horizontalSpeed *= Input.GetAxis("Horizontal");
             this.transform.position += new Vector3(horizontalSpeed, 0, 0);
         }
     }
 
-    public void MoveByMouse()
+    public void MoveByMouse(float horizontalSpeed)
     {
-        float horizontalSpeed = dodgeSpeed * Time.fixedDeltaTime;
-
         if (Input.GetMouseButton(0))
         {
             // Converting mouse click or touch into a viewport point, in order to simplify interaction towards game world space
@@ -69,9 +75,8 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    public void MoveForwards()
+    public void MoveExclusiveByTouch(float horizontalSpeed)
     {
-        rb.AddForce(0, 0, rollSpeed);
-        if (rb.velocity.z >= rollSpeed) rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, rollSpeed);
+        this.transform.position += new Vector3(horizontalSpeed, 0, 0);
     }
 }
