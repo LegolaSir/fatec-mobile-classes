@@ -19,6 +19,12 @@ public class PlayerBehaviour : MonoBehaviour
     [Range(0, 10)]
     public float rollSpeed = 5;
 
+    [Header("Swipe Config.")]
+    [SerializeField] private float swipeMove = 2.0f;
+    [SerializeField] private float minSwipeDistance = 2.0f;
+    private Vector2 touchStart;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -64,7 +70,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            horizontalSpeed *= setDirectionByScreenPixel(Input.mousePosition);
+            horizontalSpeed *= SetDirectionByScreenPixel(Input.mousePosition);
             this.transform.position += new Vector3(horizontalSpeed, 0, 0);
         }
     }
@@ -77,12 +83,14 @@ public class PlayerBehaviour : MonoBehaviour
             // Storing first touch into the screen
             Touch myTouch = Input.touches[0];
 
-            horizontalSpeed *= setDirectionByScreenPixel(myTouch.position);
-            this.transform.position += new Vector3(horizontalSpeed, 0, 0);
+            SwipeTeleport(myTouch);
+
+            //horizontalSpeed *= SetDirectionByScreenPixel(myTouch.position);
+            //this.transform.position += new Vector3(horizontalSpeed, 0, 0);
         }
     }
 
-    private int setDirectionByScreenPixel(Vector3 screenPoint)
+    private int SetDirectionByScreenPixel(Vector3 screenPoint)
     {
         Vector3 worldPos = Camera.main.ScreenToViewportPoint(screenPoint);
 
@@ -93,5 +101,26 @@ public class PlayerBehaviour : MonoBehaviour
         _ = (worldPos.x < 0.5f) ? xMove = -1 : xMove = 1;
 
         return xMove;
+    }
+
+    private void SwipeTeleport(Touch myTouch)
+    {
+        if (myTouch.phase == TouchPhase.Began) touchStart = myTouch.position;
+        else if (myTouch.phase == TouchPhase.Ended)
+        {
+            Vector2 touchEnd = myTouch.position;
+
+            float xTrack = touchEnd.x - touchStart.x;
+            if (Mathf.Abs(xTrack) < minSwipeDistance) return;
+
+            Vector3 moveDirection = new Vector3();
+            _ = (xTrack < 0.0f) ? (moveDirection = Vector3.left) : (moveDirection = Vector3.right);
+
+            RaycastHit hit;
+            if(!rb.SweepTest(moveDirection, out hit, swipeMove))
+            {
+                rb.MovePosition(rb.position + (moveDirection * swipeMove));
+            }
+        }
     }
 }
