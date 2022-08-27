@@ -64,17 +64,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            // Converting mouse click or touch into a viewport point, in order to simplify interaction towards game world space
-            Vector3 worldPos = Camera.main.ScreenToViewportPoint(Input.mousePosition);
-
-            // Proper movement in X axis, related to 'worldPos'
-            int xMove;
-
-            // Setting player direction towards X axis according to 'worldPos' value
-            _ = (worldPos.x < 0.5f) ? xMove = -1 : xMove = 1;
-
-            // X value to be implemented into new player location
-            horizontalSpeed *= xMove;
+            horizontalSpeed *= setDirectionByScreenPixel(Input.mousePosition);
             this.transform.position += new Vector3(horizontalSpeed, 0, 0);
         }
     }
@@ -87,17 +77,21 @@ public class PlayerBehaviour : MonoBehaviour
             // Storing first touch into the screen
             Touch myTouch = Input.touches[0];
 
-            // Converting touch coordinates on the screen into viewport point, so as to simplify interaction on game world space
-            Vector3 worldPos = Camera.main.ScreenToViewportPoint(myTouch.position);
-
-            // Proper movement in X axis, related to 'worldPos'
-            int xMove = 0;
-
-            // Setting player direction towards X axis according to 'worldPos' value
-            _ = (worldPos.x < 0.5f) ? xMove = -1 : xMove = 1;
-
-            horizontalSpeed *= xMove;
+            horizontalSpeed *= setDirectionByScreenPixel(myTouch.position);
             this.transform.position += new Vector3(horizontalSpeed, 0, 0);
         }
+    }
+
+    private int setDirectionByScreenPixel(Vector3 screenPoint)
+    {
+        Vector3 worldPos = Camera.main.ScreenToViewportPoint(screenPoint);
+
+        // Proper movement in X axis, related to 'worldPos'
+        int xMove = 0;
+
+        // Setting player direction towards X axis according to 'worldPos' value
+        _ = (worldPos.x < 0.5f) ? xMove = -1 : xMove = 1;
+
+        return xMove;
     }
 }
